@@ -1,5 +1,7 @@
 package com.example.textrecognitionex;
 
+import static java.lang.Double.isNaN;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,6 +28,8 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     static final int REQUEST_CODE = 2;
@@ -103,7 +107,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(Text visionText) {
                         Log.e("텍스트 인식", "성공");
                         // Task completed successfully
-                        String resultText = visionText.getText();
+                        String resultText = visionText.getText(); // 인식한 텍스트
+                        resultText = setDate(resultText);
                         text_info.setText(resultText);  // 인식한 텍스트를 TextView에 세팅
                     }
                 })
@@ -115,5 +120,40 @@ public class MainActivity extends AppCompatActivity {
                                 Log.e("텍스트 인식", "실패: " + e.getMessage());
                             }
                         });
+    }
+
+    private String setDate(String value) {
+        String str = value.replaceAll("[^0-9]", "");
+        int index = 0;
+        if((index = str.indexOf('2')) != -1) {
+            str = str.substring(index, str.length());
+        }
+
+        // 유통기한 데이터는 2로 시작해야 함
+        if(!str.startsWith("2")) {
+            return "null";
+        }
+
+        // 2020년 유통기한에 대한 처리
+        if(str.startsWith("20") && Integer.parseInt(str.substring(2, 4)) < 13) {
+            str = "20" + str;
+        }
+
+        // 여섯 자리 유통기한 포맷의 경우 여덟 자리 포맷으로 수정
+        str = !str.startsWith("20") ? "20" + str : str;
+
+        // 여덟자리인지 확인
+        if(str.substring(0, 8).length() != 8) {
+            return "null";
+        }
+
+        String year = str.substring(0, 4);
+        String month = str.substring(4, 6);
+        String date = str.substring(6, 8);
+
+        str = year + "-" + month + "-" + date;
+
+
+        return str;
     }
 }
