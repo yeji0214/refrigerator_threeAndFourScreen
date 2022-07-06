@@ -1,7 +1,5 @@
 package com.example.textrecognitionex;
 
-import static java.lang.Double.isNaN;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,11 +23,11 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     static final int REQUEST_CODE = 2;
@@ -56,9 +54,10 @@ public class MainActivity extends AppCompatActivity {
         btn_get_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-                startActivityForResult(intent, REQUEST_CODE);
+                Intent intent = new Intent(Intent.ACTION_PICK); // Intent.ACTION_PICK은 앨범을 호출할 때 사용하는 액션
+                intent.putExtra("crop", true);
+                intent.setType(MediaStore.Images.Media.CONTENT_TYPE); // 가져오는 것의 type을 image로
+                startActivityForResult(intent, REQUEST_CODE); // 새 액티비티를 열어주면서 결과값 전달
             }
         });
 
@@ -74,13 +73,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
+    // startActivityForResult()이 호출되어서 새 액티비티가 열리면 결과를 받는 곳곳    @Override
     protected  void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
         if (requestCode == REQUEST_CODE) {
             // 갤러리에서 선택한 사진에 대한 uri를 가져온다.
             uri = data.getData();
-
+            cropImage(uri);
             setImage(uri);
         }
     }
@@ -89,10 +88,10 @@ public class MainActivity extends AppCompatActivity {
     private void setImage(Uri uri) {
         try{
             InputStream in = getContentResolver().openInputStream(uri);
-            bitmap = BitmapFactory.decodeStream(in);
-            imageView.setImageBitmap(bitmap);
+            bitmap = BitmapFactory.decodeStream(in); // 비트맵으로 변환
+            imageView.setImageBitmap(bitmap); // imageView에 비트맵으로 변환한 사진 넣기
 
-            image = InputImage.fromBitmap(bitmap, 0);
+            image = InputImage.fromBitmap(bitmap, 0); // InputImage 생성
             Log.e("setImage", "이미지 to 비트맵");
         } catch (FileNotFoundException e){
             e.printStackTrace();
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.e("텍스트 인식", "성공");
                         // Task completed successfully
                         String resultText = visionText.getText(); // 인식한 텍스트
-                        resultText = setDate(resultText);
+                        resultText = getDateString(resultText);
                         text_info.setText(resultText);  // 인식한 텍스트를 TextView에 세팅
                     }
                 })
@@ -122,7 +121,14 @@ public class MainActivity extends AppCompatActivity {
                         });
     }
 
-    private String setDate(String value) {
+
+    private void cropImage(Uri uri) {
+        CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
+                .setCropShape(CropImageView.CropShape.RECTANGLE)
+                .start(this);
+    }
+
+    private String getDateString(String value) {
         String str = value.replaceAll("[^0-9]", "");
         int index = 0;
         if((index = str.indexOf('2')) != -1) {
