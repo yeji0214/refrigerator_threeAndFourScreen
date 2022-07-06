@@ -1,5 +1,6 @@
 package com.example.textrecognitionex;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -54,10 +55,12 @@ public class MainActivity extends AppCompatActivity {
         btn_get_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK); // Intent.ACTION_PICK은 앨범을 호출할 때 사용하는 액션
+                onSelectImageClick(v);
+                /*Intent intent = new Intent(Intent.ACTION_PICK); // Intent.ACTION_PICK은 앨범을 호출할 때 사용하는 액션
                 intent.putExtra("crop", true);
+                //intent.setAction(Intent.ACTION_GET_CONTENT);
                 intent.setType(MediaStore.Images.Media.CONTENT_TYPE); // 가져오는 것의 type을 image로
-                startActivityForResult(intent, REQUEST_CODE); // 새 액티비티를 열어주면서 결과값 전달
+                startActivityForResult(intent, 0); // 새 액티비티를 열어주면서 결과값 전달 */
             }
         });
 
@@ -73,15 +76,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // startActivityForResult()이 호출되어서 새 액티비티가 열리면 결과를 받는 곳곳    @Override
+    public void onSelectImageClick(View view) {
+        CropImage.activity(null).setGuidelines(CropImageView.Guidelines.ON).start(this);
+    }
+
+    // startActivityForResult()이 호출되어서 새 액티비티가 열리면 결과를 받는 곳곳
+    @Override
     protected  void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
-        if (requestCode == REQUEST_CODE) {
+
+        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            System.out.println("resultCode = " + resultCode);
+            if(resultCode == RESULT_OK) { // 크롭 성공
+                uri = result.getUri();
+                imageView.setImageURI(uri);
+                setImage(uri);
+            } else if(resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) { // 크롭 실패
+
+            }
+        }
+       /* if (requestCode == REQUEST_CODE) {
             // 갤러리에서 선택한 사진에 대한 uri를 가져온다.
             uri = data.getData();
-            cropImage(uri);
             setImage(uri);
-        }
+        } */
     }
 
     // uri를 비트맵으로 변환시킨후 이미지뷰에 띄워주고 InputImage를 생성하는 메서드
