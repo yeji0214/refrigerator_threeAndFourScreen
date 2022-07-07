@@ -4,6 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Android_Studio/TextRecognitionEx2/app/src/main/res/layout/activity_main.xml" value="0.33663366336633666" />
+        <entry key="..\:/Users/1225y/AndroidStudioProjects/Android-text-recognition-crop/app/src/main/res/layout/activity_add_food.xml" value="0.17916666666666667" />
+        <entry key="..\:/Users/1225y/AndroidStudioProjects/Android-text-recognition-crop/app/src/main/res/layout/activity_addfood.xml" value="0.17916666666666667" />
+        <entry key="..\:/Users/1225y/AndroidStudioProjects/Android-text-recognition-crop/app/src/main/res/layout/activity_initial.xml" value="0.17916666666666667" />
+        <entry key="..\:/Users/1225y/AndroidStudioProjects/Android-text-recognition-crop/app/src/main/res/layout/activity_main.xml" value="0.17916666666666667" />
+        <entry key="..\:/Users/1225y/AndroidStudioProjects/Android-text-recognition-crop/app/src/main/res/layout/activity_setting.xml" value="0.22" />
+        <entry key="..\:/Users/1225y/AndroidStudioProjects/Android-text-recognition-crop/app/src/main/res/layout/activity_setting2.xml" value="0.17916666666666667" />
+        <entry key="..\:/Users/1225y/AndroidStudioProjects/Android-text-recognition-crop/app/src/main/res/layout/activity_theme.xml" value="0.17916666666666667" />
       </map>
     </option>
   </component>

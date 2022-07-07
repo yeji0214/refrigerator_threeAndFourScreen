@@ -1,6 +1,8 @@
 package com.example.textrecognitionex;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,10 +42,17 @@ public class MainActivity extends AppCompatActivity {
     InputImage image;       // ML 모델이 인식할 인풋 이미지
     TextView text_info;     // ML 모델이 인식한 텍스트를 보여줄 뷰
     Button btn_get_image, btn_detection_image;  // 이미지 가져오기 버튼, 이미지 인식 버튼
+    // 임의 추가
+    Button btn_to_setting, btn_to_add_food;
+
     TextRecognizer recognizer;    //텍스트 인식에 사용될 모델
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 임의 추가
+        Intent intent = new Intent(this, SettingActivity.class);
+        Intent intent2 = new Intent(this, AddFoodActivity.class);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -73,7 +83,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        // 임의 추가
+        btn_to_setting = findViewById(R.id.button_to_setting);
+        btn_to_setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //intent.putExtra("state", "kill");
+                //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
+        btn_to_add_food = findViewById(R.id.button_to_add_food);
+        btn_to_add_food.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(intent2);
+            }
+        });
     }
 
     public void onSelectImageClick(View view) {
