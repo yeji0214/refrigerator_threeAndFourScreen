@@ -54,7 +54,7 @@ public class ThemeActivity extends AppCompatActivity {
         button_return_from_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                finish();
             }
         });
     }

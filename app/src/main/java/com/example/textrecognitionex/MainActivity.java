@@ -48,10 +48,7 @@ public class MainActivity extends AppCompatActivity {
     TextRecognizer recognizer;    //텍스트 인식에 사용될 모델
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        // 임의 추가
-        Intent intent = new Intent(this, SettingActivity.class);
-        Intent intent2 = new Intent(this, AddFoodActivity.class);
+    protected void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -88,8 +85,9 @@ public class MainActivity extends AppCompatActivity {
         btn_to_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //intent.putExtra("state", "kill");
-                //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                Intent intent = new Intent(v.getContext(), SettingActivity.class);
+                intent.putExtra("state", "kill");
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }
         });
@@ -97,7 +95,10 @@ public class MainActivity extends AppCompatActivity {
         btn_to_add_food.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(intent2);
+                Intent intent = new Intent(v.getContext(), AddFoodActivity.class);
+                intent.putExtra("state", "kill");
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         });
     }

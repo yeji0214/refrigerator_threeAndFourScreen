@@ -26,6 +26,8 @@
             android:theme="@style/Base.Theme.AppCompat" />
         <activity android:name=".SettingActivity"/>
         <activity android:name=".ThemeActivity"/>
+        <activity android:name=".ExpirationDateSettingActivity"/>
+        <activity android:name=".AddFoodActivity"/>
     </application>
 
 </manifest>

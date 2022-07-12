@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 // 설정 버튼 눌렀을 때 화면
 public class SettingActivity extends AppCompatActivity {
     Button button_theme, button_expirationdate_setting, button_notification, button_return;
-    Intent intent_theme = new Intent(this, ThemeActivity.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,13 +28,13 @@ public class SettingActivity extends AppCompatActivity {
         button_notification = findViewById(R.id.button_notification);
         button_return = findViewById(R.id.button_return);
 
-        // 테마 바꾸기
+        // 테마 바꾸기 (오류)
         button_theme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 여기서 오류
-                //intent_theme.putExtra("state", "kill");
-                //intent_theme.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                Intent intent_theme = new Intent(v.getContext(), ThemeActivity.class);
+                intent_theme.putExtra("state", "kill");
+                intent_theme.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent_theme);
             }
         });
@@ -44,7 +43,10 @@ public class SettingActivity extends AppCompatActivity {
         button_expirationdate_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent_theme = new Intent(v.getContext(), ExpirationDateSettingActivity.class);
+                intent_theme.putExtra("state", "kill");
+                intent_theme.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent_theme);
             }
         });
 
