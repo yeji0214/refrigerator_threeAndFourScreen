@@ -52,6 +52,7 @@ public class ThemeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
+                // 글씨 색을 검은색으로 바꿔야함
             }
         });
 
