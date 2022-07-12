@@ -79,6 +79,7 @@ public class AddFoodActivity extends AppCompatActivity {
 //                } catch (Exception e) {
 //                    Log.i("TAG", "Unable to launch camera: " + e);
 //                }
+                onSelectImageClick(v);
             }
         });
 
