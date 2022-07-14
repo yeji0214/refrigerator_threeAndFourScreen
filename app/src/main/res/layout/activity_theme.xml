@@ -34,17 +34,17 @@
         android:layout_marginBottom="24dp"
         android:text="black"
         android:textColor="@color/black"
-        app:layout_constraintBottom_toTopOf="@+id/button_theme_white"
+        app:layout_constraintBottom_toTopOf="@+id/button_theme_pink"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button_theme_white"
+        android:id="@+id/button_theme_pink"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="270dp"
-        android:text="white"
-        android:textColor="@color/white"
+        android:text="pink"
+        android:textColor="@color/pink"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

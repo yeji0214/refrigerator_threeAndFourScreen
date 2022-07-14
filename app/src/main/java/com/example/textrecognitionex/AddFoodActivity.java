@@ -41,7 +41,7 @@ public class AddFoodActivity extends AppCompatActivity {
     Bitmap bitmap;          // 갤러리에서 가져온 이미지를 담을 비트맵
     InputImage image;       // ML 모델이 인식할 인풋 이미지
     TextView text_info;     // ML 모델이 인식한 텍스트를 보여줄 뷰
-    Button button_add_picture, button_add_expiration_date, button_add;
+    Button button_add_picture, button_add_expiration_date, button_add, button_return_from_add_food;
     TextView foodname, expirationdate, memo;
 
     Dialog dialog; // 커스텀 다이얼로그
@@ -55,6 +55,7 @@ public class AddFoodActivity extends AppCompatActivity {
         button_add_picture = findViewById(R.id.button_add_picture);
         button_add_expiration_date = findViewById(R.id.button_add_expiration_date);
         button_add = findViewById(R.id.button_add);
+        button_return_from_add_food = findViewById(R.id.button_return_from_add_food);
         foodname = findViewById(R.id.foodname);
         expirationdate = findViewById(R.id.expirationdate);
         memo = findViewById(R.id.memo);
@@ -96,6 +97,13 @@ public class AddFoodActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 show();
+            }
+        });
+
+        button_return_from_add_food.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
@@ -206,9 +214,10 @@ public class AddFoodActivity extends AppCompatActivity {
     }
 
     private void show() {
+        // 다이얼로그에 이미지도 추가하기
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("음식 추가");
-        builder.setMessage("유통기한이 " + expirationdate.getText() + "까지인 " + foodname.getText() + "을 추가하시겠습니까?");
+        builder.setMessage("유통기한이 " + expirationdate.getText() + "까지인 " + foodname.getText() + "을 추가하시겠습니까?\n메모 : " + memo.getText());
         builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

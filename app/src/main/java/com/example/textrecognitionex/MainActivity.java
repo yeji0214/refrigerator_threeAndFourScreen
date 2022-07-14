@@ -2,6 +2,7 @@ package com.example.textrecognitionex;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -18,7 +19,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
+import com.example.textrecognitionex.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -35,6 +38,8 @@ import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
     static final int REQUEST_CODE = 2;
+    public int color = 0;
+    public static Context mContext;
 
     ImageView imageView;    // 갤러리에서 가져온 이미지를 보여줄 뷰
     Uri uri;                // 갤러리에서 가져온 이미지에 대한 Uri
@@ -51,7 +56,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
+        ActivityMainBinding activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+//        ActivityMainBinding activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+//        setContentView(activityMainBinding.getRoot());
+        activityMainBinding.setMyVariable("Hello databinding...");
+        mContext = this;
 
         imageView = findViewById(R.id.imageView);
         text_info = findViewById(R.id.text_info);

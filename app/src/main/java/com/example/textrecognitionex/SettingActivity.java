@@ -3,6 +3,7 @@ package com.example.textrecognitionex;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,11 +15,27 @@ import androidx.appcompat.app.AppCompatActivity;
 // 설정 버튼 눌렀을 때 화면
 public class SettingActivity extends AppCompatActivity {
     Button button_theme, button_expirationdate_setting, button_notification, button_return;
+    int color = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+
+        // 문제 : ThemeActivity가 실행되기 전에 SettingActivity가 먼저 실행됨.
+        //color = ((ThemeActivity)ThemeActivity.mContext).getColor();
+        color = ((MainActivity)MainActivity.mContext).color;
+
+        //Toast.makeText(getApplicationContext(),((MainActivity)MainActivity.mContext).color,Toast.LENGTH_SHORT).show();
+
+        if (color == 1)
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFBB86FC));
+        else if (color == 2)
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF03DAC5));
+        else if (color == 3)
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF000000));
+        else if (color == 4)
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFB2D9));
 
         ActionBar ab = getSupportActionBar();
         ab.setTitle("설정"); // AppBar Title 변경
