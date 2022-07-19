@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
-import com.example.textrecognitionex.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -56,12 +57,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
-        ActivityMainBinding activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        setContentView(R.layout.activity_main);
+
+        //ActivityMainBinding activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 //        ActivityMainBinding activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
 //        setContentView(activityMainBinding.getRoot());
-        activityMainBinding.setMyVariable("Hello databinding...");
-        mContext = this;
+        //activityMainBinding.setMyVariable(0);
+        //mContext = this;
 
         imageView = findViewById(R.id.imageView);
         text_info = findViewById(R.id.text_info);
@@ -96,9 +98,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), SettingActivity.class);
-                intent.putExtra("state", "kill");
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+//                intent.putExtra("state", "kill");
+//                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.putExtra("theme", color);
+                startActivityForResult(intent, 101);
             }
         });
         btn_to_add_food = findViewById(R.id.button_to_add_food);
@@ -106,8 +109,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), AddFoodActivity.class);
-                intent.putExtra("state", "kill");
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                intent.putExtra("state", "kill");
+//                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.putExtra("theme", color);
                 startActivity(intent);
             }
         });
@@ -131,6 +135,25 @@ public class MainActivity extends AppCompatActivity {
                 setImage(uri);
             } else if(resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) { // 크롭 실패
 
+            }
+        }
+        if (requestCode == 101) {
+            color = data.getExtras().getInt("theme");
+            if (color == 1) {
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFBB86FC));
+                getWindow().setStatusBarColor(0xFFA566FF);
+            }
+            else if (color == 2) {
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF03DAC5));
+                getWindow().setStatusBarColor(0xFF3DB7CC);
+            }
+            else if (color == 3) {
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF000000));
+                getWindow().setStatusBarColor(0xFF4C4C4C);
+            }
+            else if (color == 4) {
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFB2D9));
+                getWindow().setStatusBarColor(0xFFEDA0C7);
             }
         }
        /* if (requestCode == REQUEST_CODE) {
@@ -218,4 +241,5 @@ public class MainActivity extends AppCompatActivity {
 
         return str;
     }
+
 }

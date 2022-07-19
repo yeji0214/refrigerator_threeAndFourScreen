@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -43,14 +44,34 @@ public class AddFoodActivity extends AppCompatActivity {
     TextView text_info;     // ML 모델이 인식한 텍스트를 보여줄 뷰
     Button button_add_picture, button_add_expiration_date, button_add, button_return_from_add_food;
     TextView foodname, expirationdate, memo;
-
     Dialog dialog; // 커스텀 다이얼로그
+    int color;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_food);
         getSupportActionBar().setTitle("음식 추가하기");
+
+        Intent intent = getIntent();
+        color = intent.getExtras().getInt("theme");
+
+        if (color == 1) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFBB86FC));
+            getWindow().setStatusBarColor(0xFFA566FF);
+        }
+        else if (color == 2) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF03DAC5));
+            getWindow().setStatusBarColor(0xFF3DB7CC);
+        }
+        else if (color == 3) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF000000));
+            getWindow().setStatusBarColor(0xFF4C4C4C);
+        }
+        else if (color == 4) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFB2D9));
+            getWindow().setStatusBarColor(0xFFEDA0C7);
+        }
 
         button_add_picture = findViewById(R.id.button_add_picture);
         button_add_expiration_date = findViewById(R.id.button_add_expiration_date);
@@ -113,7 +134,7 @@ public class AddFoodActivity extends AppCompatActivity {
     }
 
     @Override
-    protected  void onActivityResult(int requestCode, int resultCode, Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
 
         if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {

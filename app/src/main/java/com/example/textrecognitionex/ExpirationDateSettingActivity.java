@@ -1,5 +1,7 @@
 package com.example.textrecognitionex;
 
+import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,12 +13,33 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ExpirationDateSettingActivity extends AppCompatActivity {
     Switch one_day_ago, three_day_ago, five_day_ago, seven_day_ago;
     Button button_return_from_expiration_date_setting;
+    int color;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_expiration_date_setting);
         getSupportActionBar().setTitle("알림 설정");
+
+        Intent intent = getIntent();
+        color = intent.getExtras().getInt("theme");
+
+        if (color == 1) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFBB86FC));
+            getWindow().setStatusBarColor(0xFFA566FF);
+        }
+        else if (color == 2) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF03DAC5));
+            getWindow().setStatusBarColor(0xFF3DB7CC);
+        }
+        else if (color == 3) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF000000));
+            getWindow().setStatusBarColor(0xFF4C4C4C);
+        }
+        else if (color == 4) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFB2D9));
+            getWindow().setStatusBarColor(0xFFEDA0C7);
+        }
 
         one_day_ago = findViewById(R.id.one_day_ago_alarm_switch);
         three_day_ago = findViewById(R.id.three_day_ago_alarm_switch);
