@@ -27,8 +27,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -37,15 +42,18 @@ import java.io.InputStream;
 
 // 음식 추가 화면
 public class AddFoodActivity extends AppCompatActivity {
-    ImageView imageView;    // 갤러리에서 가져온 이미지를 보여줄 뷰
+    ImageView imageView, imageView2;    // 갤러리에서 가져온 이미지를 보여줄 뷰
     Uri uri;                // 갤러리에서 가져온 이미지에 대한 Uri
     Bitmap bitmap;          // 갤러리에서 가져온 이미지를 담을 비트맵
     InputImage image;       // ML 모델이 인식할 인풋 이미지
-    TextView text_info;     // ML 모델이 인식한 텍스트를 보여줄 뷰
-    Button button_add_picture, button_add_expiration_date, button_add, button_return_from_add_food;
+    //TextView expirationdate;     // ML 모델이 인식한 텍스트를 보여줄 뷰
+    Button button_add_picture, button_add_expiration_date, button_add, button_return_from_add_food, button_recognize_expiration_date;
+    TextRecognizer recognizer;
     TextView foodname, expirationdate, memo;
     Dialog dialog; // 커스텀 다이얼로그
-    int color;
+    int color, photo = 0;
+    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference databaseReference = firebaseDatabase.getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,12 +85,16 @@ public class AddFoodActivity extends AppCompatActivity {
         button_add_expiration_date = findViewById(R.id.button_add_expiration_date);
         button_add = findViewById(R.id.button_add);
         button_return_from_add_food = findViewById(R.id.button_return_from_add_food);
+        button_recognize_expiration_date = findViewById(R.id.button_recognize_expiration_date);
         foodname = findViewById(R.id.foodname);
         expirationdate = findViewById(R.id.expirationdate);
         memo = findViewById(R.id.memo);
         dialog = new Dialog(AddFoodActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_add_food);
+        imageView = findViewById(R.id.imageView_add_food);
+        imageView2 = findViewById(R.id.imageView_expirationdate);
+        recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
         // 갤러리에서 음식 사진 추가
         button_add_picture.setOnClickListener(new View.OnClickListener() {
@@ -101,7 +113,9 @@ public class AddFoodActivity extends AppCompatActivity {
 //                } catch (Exception e) {
 //                    Log.i("TAG", "Unable to launch camera: " + e);
 //                }
+                photo = 0;
                 onSelectImageClick(v);
+                //TextRecognition(recognizer);
             }
         });
 
@@ -109,10 +123,18 @@ public class AddFoodActivity extends AppCompatActivity {
         button_add_expiration_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                photo = 1;
                 onSelectImageClick(v);
+                //TextRecognition(recognizer);
             }
         });
 
+        button_recognize_expiration_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextRecognition(recognizer);
+            }
+        });
         // 음식 추가
         button_add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,7 +164,10 @@ public class AddFoodActivity extends AppCompatActivity {
             System.out.println("resultCode = " + resultCode);
             if(resultCode == RESULT_OK) { // 크롭 성공
                 uri = result.getUri();
-                imageView.setImageURI(uri);
+                if (photo == 0)
+                    imageView.setImageURI(uri);
+                else
+                    imageView2.setImageURI(uri);
                 setImage(uri);
             } else if(resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) { // 크롭 실패
 
@@ -160,9 +185,12 @@ public class AddFoodActivity extends AppCompatActivity {
         try{
             InputStream in = getContentResolver().openInputStream(uri);
             bitmap = BitmapFactory.decodeStream(in); // 비트맵으로 변환
-            imageView.setImageBitmap(bitmap); // imageView에 비트맵으로 변환한 사진 넣기
-
-            image = InputImage.fromBitmap(bitmap, 0); // InputImage 생성
+            if (photo == 0)
+                imageView.setImageBitmap(bitmap); // imageView에 비트맵으로 변환한 사진 넣기
+            else {
+                imageView2.setImageBitmap(bitmap);
+                image = InputImage.fromBitmap(bitmap, 0); // InputImage 생성
+            }
             Log.e("setImage", "이미지 to 비트맵");
         } catch (FileNotFoundException e){
             e.printStackTrace();
@@ -179,7 +207,7 @@ public class AddFoodActivity extends AppCompatActivity {
                         // Task completed successfully
                         String resultText = visionText.getText(); // 인식한 텍스트
                         resultText = getDateString(resultText);
-                        text_info.setText(resultText);  // 인식한 텍스트를 TextView에 세팅
+                        expirationdate.setText(resultText);  // 인식한 텍스트를 TextView에 세팅
                     }
                 })
                 // 이미지 인식에 실패하면 실행되는 리스너
@@ -242,6 +270,7 @@ public class AddFoodActivity extends AppCompatActivity {
         builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                databaseReference.child("냉장고").child("1234").push().setValue("");
                 Toast.makeText(getApplicationContext(),"음식이 추가되었습니다",Toast.LENGTH_SHORT).show();
             }
         });
