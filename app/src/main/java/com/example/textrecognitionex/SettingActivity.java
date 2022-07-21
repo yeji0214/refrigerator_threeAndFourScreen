@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 // 설정 버튼 눌렀을 때 화면
 public class SettingActivity extends AppCompatActivity {
     Button button_theme, button_expirationdate_setting, button_notification, button_return;
-    int color = 0;
+    int color = 0, switch_one_day_ago = 0, switch_three_day_ago = 0, switch_five_day_ago = 0, switch_seven_day_ago = 0, switch_all = 0, alarm_off = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,11 +78,30 @@ public class SettingActivity extends AppCompatActivity {
         button_expirationdate_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent_theme = new Intent(v.getContext(), ExpirationDateSettingActivity.class);
+                Intent intent_alarm = new Intent(v.getContext(), ExpirationDateSettingActivity.class);
 //                intent_theme.putExtra("state", "kill");
 //                intent_theme.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent_theme.putExtra("theme", color);
-                startActivity(intent_theme);
+                intent_alarm.putExtra("theme", color);
+                intent_alarm.putExtra("alarm_one_day_age", switch_one_day_ago);
+                intent_alarm.putExtra("alarm_three_day_age", switch_three_day_ago);
+                intent_alarm.putExtra("alarm_five_day_age", switch_five_day_ago);
+                intent_alarm.putExtra("alarm_seven_day_age", switch_seven_day_ago);
+                if (alarm_off == 1){
+                    switch_one_day_ago = 0;
+                    switch_three_day_ago = 0;
+                    switch_five_day_ago = 0;
+                    switch_seven_day_ago = 0;
+                    switch_all = 0;
+                    intent_alarm.putExtra("alarm_one_day_age", switch_one_day_ago);
+                    intent_alarm.putExtra("alarm_three_day_age", switch_three_day_ago);
+                    intent_alarm.putExtra("alarm_five_day_age", switch_five_day_ago);
+                    intent_alarm.putExtra("alarm_seven_day_age", switch_seven_day_ago);
+                    intent_alarm.putExtra("alarm_all", switch_all);
+                }
+                else {
+                    intent_alarm.putExtra("alarm_all", switch_all);
+                }
+                startActivityForResult(intent_alarm, 101);
             }
         });
 
@@ -115,12 +134,14 @@ public class SettingActivity extends AppCompatActivity {
         builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                alarm_off = 1;
                 Toast.makeText(getApplicationContext(),"푸시 알림이 꺼졌습니다.",Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                alarm_off = 0;
                 Toast.makeText(getApplicationContext(),"푸시 알림을 끄지 않습니다.",Toast.LENGTH_SHORT).show();
             }
         });
@@ -133,6 +154,12 @@ public class SettingActivity extends AppCompatActivity {
 
         if (requestCode == 101) {
             color = data.getExtras().getInt("theme");
+            switch_one_day_ago = data.getExtras().getInt("alarm_one_day_age");
+            switch_three_day_ago = data.getExtras().getInt("alarm_three_day_age");
+            switch_five_day_ago = data.getExtras().getInt("alarm_five_day_age");
+            switch_seven_day_ago = data.getExtras().getInt("alarm_seven_day_age");
+            switch_all = data.getExtras().getInt("alarm_all");
+
             if (color == 1) {
                 getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFBB86FC));
                 getWindow().setStatusBarColor(0xFFA566FF);

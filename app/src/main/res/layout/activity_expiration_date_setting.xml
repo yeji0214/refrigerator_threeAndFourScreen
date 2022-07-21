@@ -7,7 +7,7 @@
 
     <Switch
         android:id="@+id/one_day_ago_alarm_switch"
-        android:layout_width="wrap_content"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="150dp"
         android:text="1일 전"
@@ -18,9 +18,9 @@
 
     <Switch
         android:id="@+id/three_day_ago_alarm_switch"
-        android:layout_width="wrap_content"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:text="3일 전"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,9 +28,9 @@
 
     <Switch
         android:id="@+id/five_day_ago_alarm_switch"
-        android:layout_width="wrap_content"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:text="5일 전"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,9 +38,9 @@
 
     <Switch
         android:id="@+id/seven_day_ago_alarm_switch"
-        android:layout_width="wrap_content"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:text="7일 전"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,4 +55,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Switch
+        android:id="@+id/all_alarm_switch"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="All"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seven_day_ago_alarm_switch" />
 </androidx.constraintlayout.widget.ConstraintLayout>
