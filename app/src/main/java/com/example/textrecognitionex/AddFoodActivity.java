@@ -270,7 +270,9 @@ public class AddFoodActivity extends AppCompatActivity {
         builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                databaseReference.child("냉장고").child("1234").push().setValue("");
+                firebaseDatabase = FirebaseDatabase.getInstance();
+                databaseReference = firebaseDatabase.getReference();
+                databaseReference.child("냉장고").child("냉장고1").child("당근").setValue("");
                 Toast.makeText(getApplicationContext(),"음식이 추가되었습니다",Toast.LENGTH_SHORT).show();
             }
         });
