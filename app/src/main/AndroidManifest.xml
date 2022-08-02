@@ -14,7 +14,7 @@
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
         <activity
-            android:name=".MainActivity"
+            android:name=".CategoryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,6 +28,9 @@
         <activity android:name=".ThemeActivity"/>
         <activity android:name=".ExpirationDateSettingActivity"/>
         <activity android:name=".AddFoodActivity"/>
+        <activity android:name=".CalendarActivity"/>
+        <activity android:name=".ItemActivity"/>
+        <activity android:name=".MainActivity"/>
     </application>
 
 </manifest>

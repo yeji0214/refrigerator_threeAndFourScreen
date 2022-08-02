@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_category);
 
         //ActivityMainBinding activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 //        ActivityMainBinding activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());

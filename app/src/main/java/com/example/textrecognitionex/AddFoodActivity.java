@@ -2,18 +2,16 @@ package com.example.textrecognitionex;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -23,7 +21,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.textrecognitionex.ItemActivity;
+import com.example.textrecognitionex.ItemViewModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -34,8 +35,8 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
+//import com.theartofdev.edmodo.cropper.CropImage;
+//import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -52,8 +53,12 @@ public class AddFoodActivity extends AppCompatActivity {
     TextView foodname, expirationdate, memo;
     Dialog dialog; // 커스텀 다이얼로그
     int color, photo = 0;
-    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference databaseReference = firebaseDatabase.getReference();
+
+    private String refrigeratorName;
+    private String category;
+
+    private ItemViewModel viewModel;
+    private DatabaseReference itemDatabaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +67,13 @@ public class AddFoodActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("음식 추가하기");
 
         Intent intent = getIntent();
+        refrigeratorName = intent.getStringExtra("refrigeratorName"); // 냉장고 이름 받아오기
+        category = intent.getStringExtra("category"); // 카테고리 이름 받아오기
+        viewModel = intent.getParcelableExtra("itemViewModel"); // item 뷰모델 받아오기
+
         color = intent.getExtras().getInt("theme");
 
+        // 테마 설정?
         if (color == 1) {
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFBB86FC));
             getWindow().setStatusBarColor(0xFFA566FF);
@@ -91,7 +101,7 @@ public class AddFoodActivity extends AppCompatActivity {
         memo = findViewById(R.id.memo);
         dialog = new Dialog(AddFoodActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_add_food);
+        dialog.setContentView(R.layout.dialog_add_item);
         imageView = findViewById(R.id.imageView_add_food);
         imageView2 = findViewById(R.id.imageView_expirationdate);
         recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
@@ -114,7 +124,7 @@ public class AddFoodActivity extends AppCompatActivity {
 //                    Log.i("TAG", "Unable to launch camera: " + e);
 //                }
                 photo = 0;
-                onSelectImageClick(v);
+                //onSelectImageClick(v);
                 //TextRecognition(recognizer);
             }
         });
@@ -124,7 +134,7 @@ public class AddFoodActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 photo = 1;
-                onSelectImageClick(v);
+                //onSelectImageClick(v);
                 //TextRecognition(recognizer);
             }
         });
@@ -135,13 +145,7 @@ public class AddFoodActivity extends AppCompatActivity {
                 TextRecognition(recognizer);
             }
         });
-        // 음식 추가
-        button_add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                show();
-            }
-        });
+
 
         button_return_from_add_food.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,34 +155,29 @@ public class AddFoodActivity extends AppCompatActivity {
         });
     }
 
-    public void onSelectImageClick(View view) {
-        CropImage.activity(null).setGuidelines(CropImageView.Guidelines.ON).start(this);
-    }
+//    public void onSelectImageClick(View view) {
+//        CropImage.activity(null).setGuidelines(CropImageView.Guidelines.ON).start(this);
+//    }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode,resultCode,data);
-
-        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            System.out.println("resultCode = " + resultCode);
-            if(resultCode == RESULT_OK) { // 크롭 성공
-                uri = result.getUri();
-                if (photo == 0)
-                    imageView.setImageURI(uri);
-                else
-                    imageView2.setImageURI(uri);
-                setImage(uri);
-            } else if(resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) { // 크롭 실패
-
-            }
-        }
-       /* if (requestCode == REQUEST_CODE) {
-            // 갤러리에서 선택한 사진에 대한 uri를 가져온다.
-            uri = data.getData();
-            setImage(uri);
-        } */
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+//        super.onActivityResult(requestCode,resultCode,data);
+//
+//        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+//            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+//            System.out.println("resultCode = " + resultCode);
+//            if(resultCode == RESULT_OK) { // 크롭 성공
+//                uri = result.getUri();
+//                if (photo == 0)
+//                    imageView.setImageURI(uri);
+//                else
+//                    imageView2.setImageURI(uri);
+//                setImage(uri);
+//            } else if(resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) { // 크롭 실패
+//
+//            }
+//        }
+//    }
 
     // uri를 비트맵으로 변환시킨후 이미지뷰에 띄워주고 InputImage를 생성하는 메서드
     private void setImage(Uri uri) {
@@ -221,11 +220,11 @@ public class AddFoodActivity extends AppCompatActivity {
     }
 
 
-    private void cropImage(Uri uri) {
-        CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
-                .setCropShape(CropImageView.CropShape.RECTANGLE)
-                .start(this);
-    }
+//    private void cropImage(Uri uri) {
+//        CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
+//                .setCropShape(CropImageView.CropShape.RECTANGLE)
+//                .start(this);
+//    }
 
     private String getDateString(String value) {
         String str = value.replaceAll("[^0-9]", "");
@@ -262,26 +261,96 @@ public class AddFoodActivity extends AppCompatActivity {
         return str;
     }
 
-    private void show() {
-        // 다이얼로그에 이미지도 추가하기
+//    private void show() {
+//        // 다이얼로그에 이미지도 추가하기
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle("음식 추가");
+//        builder.setMessage("유통기한이 " + expirationdate.getText() + "까지인 " + foodname.getText() + "을 추가하시겠습니까?\n메모 : " + memo.getText());
+//        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//                databaseReference = FirebaseDatabase.getInstance().getReference();
+//                databaseReference.child("냉장고").child("생선").setValue("");
+//
+//                databaseReference = FirebaseDatabase.getInstance().getReference();
+//                String key = databaseReference.child("냉장고").child("냉장고1").child("생선").getKey();
+//                String value = databaseReference.child("냉장고").child("냉장고1").child(key).toString();
+//
+//                Log.e("AddFoodActivity", "key = " + key);
+//                Log.e("AddFoodActivity", "value = " + value);
+//                Toast.makeText(getApplicationContext(),"음식이 추가되었습니다",Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//                Toast.makeText(getApplicationContext(),"음식 추가가 취소되었습니다.",Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//        builder.show();
+//    }
+
+    public void createItemInDatabase(String item) {
+        itemDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        itemDatabaseReference.child("냉장고").child(refrigeratorName).child(category).child(item).setValue("");
+    }
+
+    public void createExpirationDate(String item, String date) {
+        itemDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        itemDatabaseReference.child("냉장고").child(refrigeratorName).child(category).child(item).child(date).setValue("");
+    }
+
+    public void createMemo(String item, String memo) {
+        itemDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        itemDatabaseReference.child("냉장고").child(refrigeratorName).child(category).child(item).child(memo).setValue("");
+    }
+
+    public void addItemBtnClick(View v) {
+        String name = foodname.getText().toString(); // 입력한 이름 받아오고
+        String ed = expirationdate.getText().toString(); // 유통기한 받아오기
+        String mm = memo.getText().toString();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("음식 추가");
-        builder.setMessage("유통기한이 " + expirationdate.getText() + "까지인 " + foodname.getText() + "을 추가하시겠습니까?\n메모 : " + memo.getText());
-        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.dialog_add_item, null);
+        builder.setView(layout);
+
+        TextView addItemTextView = findViewById(R.id.addItemTextView);
+        String s = name + "을 추가하시겠습니까?";
+        //addItemTextView.setText(s);
+
+        Context context = getApplicationContext();
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                firebaseDatabase = FirebaseDatabase.getInstance();
-                databaseReference = firebaseDatabase.getReference();
-                databaseReference.child("냉장고").child("냉장고1").child("당근").setValue("");
-                Toast.makeText(getApplicationContext(),"음식이 추가되었습니다",Toast.LENGTH_SHORT).show();
+                if(name.equals("")) {
+                    Toast.makeText(AddFoodActivity.this, "이름을 입력하세요", Toast.LENGTH_SHORT);
+                    return;
+                }
+                viewModel.addItem(name); // viewModel에 아이템 추가
+                viewModel.addExpirationDate(ed); // 유통기한 추가
+                viewModel.addMemo(mm);
+                createItemInDatabase(name);
+                createExpirationDate(name, ed);
+                createMemo(name, mm);
+
+                Log.e("AddItemActivity", category + "에 " + name + " 추가");
+
+                Intent intent = new Intent(context, ItemActivity.class);
+                intent.putExtra("category", category);
+                startActivity(intent);
             }
         });
-        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(),"음식 추가가 취소되었습니다.",Toast.LENGTH_SHORT).show();
+                Log.e("AddItemActivity", "item 추가 취소");
+                Intent intent = new Intent(context, ItemActivity.class);
+                startActivity(intent);
             }
         });
-        builder.show();
+
+        builder.create().show();
     }
 }
