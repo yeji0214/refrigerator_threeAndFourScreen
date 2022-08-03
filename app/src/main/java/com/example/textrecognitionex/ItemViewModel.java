@@ -11,9 +11,10 @@ import java.util.Date;
 
 public class ItemViewModel extends ViewModel implements Parcelable {
     public MutableLiveData<ArrayList<String>> itemsLiveData = new MutableLiveData<>();
-    public MutableLiveData<ArrayList<String>> datesLiveData = new MutableLiveData<>();
+    public MutableLiveData<ArrayList<Date>> datesLiveData = new MutableLiveData<>();
+    public MutableLiveData<ArrayList<String>> memosLiveData = new MutableLiveData<>();
     public ArrayList<String> items = new ArrayList<>();
-    public ArrayList<String> dates = new ArrayList<>(); // 유통기한 저장
+    public ArrayList<Date> dates = new ArrayList<>(); // 유통기한 저장
     public ArrayList<String> memos = new ArrayList<>(); // 메모 저장
 
     public int longClickPosition;
@@ -43,7 +44,7 @@ public class ItemViewModel extends ViewModel implements Parcelable {
         itemsLiveData.setValue(items);
     }
 
-    public void addExpirationDate(String date) {
+    public void addExpirationDate(Date date) {
 //        if (dates.contains(date))
 //            return;
         dates.add(date);
@@ -51,8 +52,8 @@ public class ItemViewModel extends ViewModel implements Parcelable {
     }
 
     public void addMemo(String memo) {
-        dates.add(memo);
-        datesLiveData.setValue(memos);
+        memos.add(memo);
+        memosLiveData.setValue(memos);
     }
 
     public int getItemSize() { return items.size(); }

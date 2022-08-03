@@ -2,6 +2,9 @@ package com.example.textrecognitionex;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,6 +43,11 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 // 음식 추가 화면
 public class AddFoodActivity extends AppCompatActivity {
@@ -126,6 +134,15 @@ public class AddFoodActivity extends AppCompatActivity {
                 photo = 0;
                 //onSelectImageClick(v);
                 //TextRecognition(recognizer);
+
+                // 여기부터 수정사항
+                NotificationManager notificationManager= (NotificationManager)AddFoodActivity.this.getSystemService(AddFoodActivity.this.NOTIFICATION_SERVICE);
+                Intent intent1 = new Intent(AddFoodActivity.this.getApplicationContext(),AddFoodActivity.class); //인텐트 생성.
+                Notification.Builder builder = new Notification.Builder(getApplicationContext());
+                intent1.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);//현재 액티비티를 최상으로 올리고, 최상의 액티비티를 제외한 모든 액티비티를 없앤다.
+                PendingIntent pendingNotificationIntent = PendingIntent.getActivity( AddFoodActivity.this,0, intent1,PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setSmallIcon(R.drawable.food).setTicker("HETT").setWhen(System.currentTimeMillis()).setNumber(1).setContentTitle("푸쉬 제목").setContentText("푸쉬내용").setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).setContentIntent(pendingNotificationIntent).setAutoCancel(true);
+                notificationManager.notify(1, builder.build()); // Notification send
             }
         });
 
@@ -305,6 +322,16 @@ public class AddFoodActivity extends AppCompatActivity {
         itemDatabaseReference.child("냉장고").child(refrigeratorName).child(category).child(item).child(memo).setValue("");
     }
 
+    public Date StringToDate(String date) {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = null;
+        try{
+            d = format.parse(date);
+        } catch(ParseException e) {
+            e.printStackTrace();
+        }
+        return d;
+    }
     public void addItemBtnClick(View v) {
         String name = foodname.getText().toString(); // 입력한 이름 받아오고
         String ed = expirationdate.getText().toString(); // 유통기한 받아오기
@@ -327,18 +354,90 @@ public class AddFoodActivity extends AppCompatActivity {
                     Toast.makeText(AddFoodActivity.this, "이름을 입력하세요", Toast.LENGTH_SHORT);
                     return;
                 }
-                viewModel.addItem(name); // viewModel에 아이템 추가
-                viewModel.addExpirationDate(ed); // 유통기한 추가
-                viewModel.addMemo(mm);
-                createItemInDatabase(name);
-                createExpirationDate(name, ed);
-                createMemo(name, mm);
+
+
+                //long now = System.currentTimeMillis(); // 현재 시간 가져오기
+                Date date;
+                Date current = new Date();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                dateFormat.setLenient(false);
+
+                try {
+                    date = dateFormat.parse(ed);
+                    String cur = dateFormat.format(current);
+                    current = dateFormat.parse(cur); // 다시 날짜 형식으로 변환
+                    //int compare = date.compareTo(current);
+
+                    // 입력된 유통기한이 현재 날짜와 같거나 나중이어야 함
+                    if (current.before(date) || current.equals(date)){
+                        Calendar d = Calendar.getInstance();
+                        d.setTime(date);
+                        d.add(Calendar.MONTH, 1);
+                        Calendar c = Calendar.getInstance();
+                        c.setTime(current);
+                        c.add(Calendar.MONTH, 1);
+                        System.out.println("유통기한이 올바르게 입력됨, 유통기한 : " + d);
+                        System.out.println("유통기한이 올바르게 입력됨, 현재 날짜 : " + c);
+                        System.out.println("유통기한: " + d.get(Calendar.YEAR) +"년 " + d.get(Calendar.MONTH) + "월 " + d.get(Calendar.DAY_OF_MONTH)+"일");
+                        System.out.println("현재 날짜: " + c.get(Calendar.YEAR) +"년 " + c.get(Calendar.MONTH) + "월 " + c.get(Calendar.DAY_OF_MONTH)+"일");
+
+                        viewModel.addItem(name); // viewModel에 아이템 추가
+                        viewModel.addExpirationDate(current); // 유통기한 추가
+                        viewModel.addMemo(mm);
+                        createItemInDatabase(name);
+                        createExpirationDate(name, ed);
+                        createMemo(name, mm);
+
+                        // 유통기한 형식 올바르면서 현재 날짜보다 나중인 경우에만 ItemActivity로 이동
+                        Intent intent = new Intent(context, ItemActivity.class);
+                        intent.putExtra("category", category);
+                        startActivity(intent);
+                    }
+                    else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(AddFoodActivity.this);
+                        builder.setTitle("경고");
+                        builder.setMessage("유통기한이 현재 날짜보다 빠를 수 없습니다.\n다시 입력해주세요.");
+
+                        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        });
+                        builder.show();
+                    }
+                } catch (ParseException e) {
+                    //System.out.println("날짜 형식에 맞지 않음");
+
+                    // 다이얼로그 띄우고 날짜 다시 입력받기
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AddFoodActivity.this);
+                    builder.setTitle("경고");
+                    builder.setMessage("잘못된 유통기한입니다. 다시 입력해주세요.\n올바른 유통기한 형식: 0000-00-00");
+
+                    builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    });
+
+                    builder.show();
+                    e.printStackTrace();
+                }
+
+
+//                viewModel.addExpirationDate(ed); // 유통기한 추가
+//                createExpirationDate(name, ed);
 
                 Log.e("AddItemActivity", category + "에 " + name + " 추가");
 
-                Intent intent = new Intent(context, ItemActivity.class);
-                intent.putExtra("category", category);
-                startActivity(intent);
+                // 유통기한 형식이 잘못되어 있는 경우는 ItemActivity로 넘어가지 x
+//                if (date.isLenient()) {
+//                    Intent intent = new Intent(context, ItemActivity.class);
+//                    intent.putExtra("category", category);
+//                    startActivity(intent);
+//                }
+
             }
         });
 
@@ -352,5 +451,10 @@ public class AddFoodActivity extends AppCompatActivity {
         });
 
         builder.create().show();
+    }
+
+    // 유통기한에 임박한 음식이 있으면 알림 띄워주는 함수
+    public void pushAlarm() {
+
     }
 }
