@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -41,6 +42,9 @@ public class CategoryActivity extends AppCompatActivity {
 
     private DatabaseReference databaseCategoryReference;
 
+    // 수정사항
+    private Notification mNotification;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +63,11 @@ public class CategoryActivity extends AppCompatActivity {
         categoryRecyclerView.setAdapter(categoryAdapter); // 리사이클러뷰에 CategoryrAdapter 객체 지정
         categoryRecyclerView.setLayoutManager(new LinearLayoutManager(this)); // 리사이클러뷰에 LinearLayoutManager 객체 지정
         categoryRecyclerView.setHasFixedSize(true); // View마다 크기 똑같게
+
+        // 수정사항 (알람 띄우기)
+        mNotification = new Notification(this);
+        NotificationCompat.Builder nb = mNotification.getChannel1Notification("제목", "내용");
+        mNotification.getManager().notify(1, nb.build());
 
         registerForContextMenu(categoryRecyclerView); // categoryRecyclerView가 context menu를 가질 수 있도록
 
