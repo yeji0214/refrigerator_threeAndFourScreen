@@ -65,9 +65,9 @@ public class CategoryActivity extends AppCompatActivity {
         categoryRecyclerView.setHasFixedSize(true); // View마다 크기 똑같게
 
         // 수정사항 (알람 띄우기)
-        mNotification = new Notification(this);
-        NotificationCompat.Builder nb = mNotification.getChannel1Notification("제목", "내용");
-        mNotification.getManager().notify(1, nb.build());
+//        mNotification = new Notification(this);
+//        NotificationCompat.Builder nb = mNotification.getChannel1Notification("제목", "내용");
+//        mNotification.getManager().notify(1, nb.build());
 
         registerForContextMenu(categoryRecyclerView); // categoryRecyclerView가 context menu를 가질 수 있도록
 
@@ -169,6 +169,10 @@ public class CategoryActivity extends AppCompatActivity {
         LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.dialog_add_category, null);
         builder.setView(layout);
+
+        mNotification = new Notification(this);
+        NotificationCompat.Builder nb = mNotification.getChannel1Notification("제목", "내용");
+        mNotification.getManager().notify(1, nb.build());
 
         EditText editCategory = (EditText) layout.findViewById(R.id.editCategory);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

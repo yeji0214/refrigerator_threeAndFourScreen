@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -383,6 +384,11 @@ public class AddFoodActivity extends AppCompatActivity {
 
                         viewModel.addItem(name); // viewModel에 아이템 추가
                         viewModel.addExpirationDate(current); // 유통기한 추가
+
+                        System.out.println(name + "의 메모 : " + memo.getText());
+                        if (TextUtils.isEmpty(memo.getText().toString()))
+                            memo.setText(" ");
+
                         viewModel.addMemo(mm);
                         createItemInDatabase(name);
                         createExpirationDate(name, ed);
