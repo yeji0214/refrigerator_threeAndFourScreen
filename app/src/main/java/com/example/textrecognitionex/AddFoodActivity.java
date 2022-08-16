@@ -164,7 +164,6 @@ public class AddFoodActivity extends AppCompatActivity {
             }
         });
 
-
         button_return_from_add_food.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
