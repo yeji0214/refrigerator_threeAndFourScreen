@@ -1,5 +1,14 @@
 package com.example.textrecognitionex;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,40 +19,48 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import com.example.textrecognitionex.CalendarActivity;
+import com.example.textrecognitionex.CategoryAdapter;
+import com.example.textrecognitionex.CategoryViewModel;
+import com.example.textrecognitionex.ItemActivity;
+import com.example.textrecognitionex.ItemViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+//import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class CategoryActivity extends AppCompatActivity {
     private String refrigeratorName; // 앞에서 전달된 냉장고 이름으로 바꿔야 됨
+    private String category;
 
     private CategoryViewModel viewModel;
+    private ItemViewModel itemviewModel;
     private RecyclerView categoryRecyclerView; // 카테고리들을 담을 리싸이클러뷰
     private CategoryAdapter categoryAdapter;
 
     private String editCategoryText;
 
     private DatabaseReference databaseCategoryReference;
-
-    // 수정사항
+    private DatabaseReference itemDatabaseReference;
     private Notification mNotification;
+
+    Date date;
+    Date current = new Date();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +68,68 @@ public class CategoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_category);
 
         Log.e("CategoryActivity", "CategoryActivity 시작");
+        itemDatabaseReference = FirebaseDatabase.getInstance().getReference();
+
+        // 수정사항 (firebase에서 메시지 전달하기)
+//        FirebaseMessaging.getInstance().getToken()
+//                .addOnCompleteListener(new OnCompleteListener<String>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<String> task) {
+//                        if (!task.isSuccessful()) {
+//                            System.out.println("Fetching FCM registration token failed");
+//                            return;
+//                        }
+//
+//                        // Get new FCM registration token
+//                        String token = task.getResult();
+//
+//                        // Log and toast
+//                        System.out.println(token);
+//                        Toast.makeText(CategoryActivity.this, "Your device registration token is" + token
+//                                , Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+
+        //2
+//        FirebaseMessaging.getInstance().subscribeToTopic("weather")
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        String msg = "Done";
+//                        if (!task.isSuccessful()){
+//                            msg = "Failed";
+//                        }
+//                    }
+//                });
+//        FirebaseMessaging.getInstance().unsubscribeFromTopic("weather")
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        String msg = "Done";
+//                        if (!task.isSuccessful()){
+//                            msg = "Failed";
+//                        }
+//                    }
+//                });
+//
+//        FirebaseMessaging.getInstance().subscribeToTopic("1dayago")
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        String msg = "Done";
+//                        if (!task.isSuccessful()){
+//                            msg = "Failed";
+//                        }
+//                    }
+//                });
 
         refrigeratorName = "냉장고1"; // 냉장고 이름
         setTitle(refrigeratorName + "의 냉장고");
 
+        Intent intent = getIntent();
+        category = intent.getStringExtra("category"); // 카테고리 이름 받아오기
         viewModel = new ViewModelProvider(this).get(CategoryViewModel.class); // 뷰모델 생성
+        itemviewModel = intent.getParcelableExtra("itemViewModel"); // item 뷰모델 받아오기
 
         categoryRecyclerView = (RecyclerView)findViewById(R.id.categoryRecyclerView);
         categoryAdapter = new CategoryAdapter(viewModel); // 어댑터 생성
@@ -63,11 +137,6 @@ public class CategoryActivity extends AppCompatActivity {
         categoryRecyclerView.setAdapter(categoryAdapter); // 리사이클러뷰에 CategoryrAdapter 객체 지정
         categoryRecyclerView.setLayoutManager(new LinearLayoutManager(this)); // 리사이클러뷰에 LinearLayoutManager 객체 지정
         categoryRecyclerView.setHasFixedSize(true); // View마다 크기 똑같게
-
-        // 수정사항 (알람 띄우기)
-//        mNotification = new Notification(this);
-//        NotificationCompat.Builder nb = mNotification.getChannel1Notification("제목", "내용");
-//        mNotification.getManager().notify(1, nb.build());
 
         registerForContextMenu(categoryRecyclerView); // categoryRecyclerView가 context menu를 가질 수 있도록
 
@@ -81,6 +150,29 @@ public class CategoryActivity extends AppCompatActivity {
 
         // DB에 있는 카테고리들 가져오기
         getFirebaseDatabase();
+
+        // 얘네 주석을 풀면 실행이 안됨,,
+//        System.out.println("현재 데베에 입력된 음식 개수: " + itemviewModel.dates.size());
+//        for (int i=0; i<itemviewModel.items.size(); i++){
+//            //if (viewModel.dates.get(i) != null)
+//            try {
+//                date = dateFormat.parse(itemviewModel.dates.get(i).toString());
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//            String cur = dateFormat.format(current);
+//            try {
+//                current = dateFormat.parse(cur); // 다시 날짜 형식으로 변환
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//            if(itemviewModel.dates.get(i).getMonth()-current.getMonth() == 1){
+//                System.out.println(itemviewModel.items.get(i) + "의 유통기한이 하루 남았습니다.");
+//                mNotification = new Notification(this);
+//                NotificationCompat.Builder nb = mNotification.getChannel1Notification("나의 냉장고", itemviewModel.items.get(i) + "의 유통기한이 하루 남았습니다.");
+//                mNotification.getManager().notify(1, nb.build());
+//            }
+//        }
     }
 
 
@@ -145,7 +237,7 @@ public class CategoryActivity extends AppCompatActivity {
     }
 
     public void getFirebaseDatabase() {
-        Log.e("CategiryActivity", "getFirebaseDatabase()");
+        Log.e("CategoryActivity", "getFirebaseDatabase()");
         FirebaseDatabase.getInstance().getReference().child("냉장고").child(refrigeratorName).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -169,10 +261,6 @@ public class CategoryActivity extends AppCompatActivity {
         LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.dialog_add_category, null);
         builder.setView(layout);
-
-        mNotification = new Notification(this);
-        NotificationCompat.Builder nb = mNotification.getChannel1Notification("제목", "내용");
-        mNotification.getManager().notify(1, nb.build());
 
         EditText editCategory = (EditText) layout.findViewById(R.id.editCategory);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
